@@ -7,6 +7,7 @@ import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ActivityService {
@@ -20,17 +21,17 @@ public class ActivityService {
 
     public void addActivity(Activity activity){
         Optional<Activity> activityOptional= activityRepository.findActivityByName(activity.getName());
-
+        activity.setUser_id(1L);
         if(activityOptional.isPresent()){
             throw new IllegalStateException("activity already exists");
         }
         activityRepository.save(activity);
     }
     public List<Activity> getActivities(){
-        return activityRepository.findAll();
+        List<Activity> activities = activityRepository.findAll();
+        activities.removeIf(activity -> activity.getFolder_id()!=0);
+        return activities;
     }
-
-
 
     public void deleteActivity(Long activityId) {
         boolean exists = activityRepository.existsById(activityId);
@@ -44,7 +45,6 @@ public class ActivityService {
 
     @Transactional
     public void updateActivity(Activity activity) {
-        System.out.println(activity);
         Activity oldActivity = activityRepository.
                 findById(activity.getId()).
                 orElseThrow(()-> new IllegalStateException(
@@ -57,5 +57,14 @@ public class ActivityService {
             oldActivity.setName(activity.getName());
         }
 
+    }
+    @Transactional
+    public void updateActivityStatus(Activity activity){
+        Activity oldActivity = activityRepository
+                .findById(activity.getId())
+                .orElseThrow(()-> new IllegalStateException(
+                        "activity with the id "+ activity.getId()+" does not exists"
+                ));
+        oldActivity.setDone(activity.isDone());
     }
 }

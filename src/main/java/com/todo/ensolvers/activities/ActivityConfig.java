@@ -3,25 +3,15 @@ package com.todo.ensolvers.activities;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
 @Configuration
-public class ActivityConfig {
-
-    @Bean
-    CommandLineRunner commandLineRunner(ActivityRepository repository){
-        return args -> {
-            Activity act = new Activity(
-                    "hacer ejercicio"
-            );
-            Activity act2 = new Activity(
-                    "no hacer ejercicio"
-            );
-
-            repository.saveAll(
-                    List.of(act,act2)
-            );
-        };
+public class ActivityConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**").allowedMethods("*");
     }
 }
